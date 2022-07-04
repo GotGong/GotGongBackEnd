@@ -41,7 +41,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework', # DRF 기본 세팅
     'corsheaders', # CORS 관련 기본 세팅
+    'rest_framework.authtoken', # Token 인증 세팅
+    'user',
 ]
+
+# Token 이용해서 User 찾아오기
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
