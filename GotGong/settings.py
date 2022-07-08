@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders', # CORS 관련 기본 세팅
     'rest_framework.authtoken', # Token 인증 세팅
     'user',
+    'room',
 ]
 
 # Token 이용해서 User 찾아오기
