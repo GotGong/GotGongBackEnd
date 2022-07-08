@@ -1,5 +1,5 @@
 from django.db import models
-from ..user.models import User
+from user.models import User
 
 # Create your models here.
 class Room(models.Model):
@@ -9,7 +9,7 @@ class Room(models.Model):
     plan_half_fee = models.IntegerField()
     plan_no_fee = models.IntegerField()
     max_user_num = models.IntegerField()
-    room_code = models.CharField()
+    room_code = models.CharField(max_length=100)
     plan_period = models.IntegerField()
     leader_id = models.IntegerField()
     negative_percent = models.FloatField()
