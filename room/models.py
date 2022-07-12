@@ -9,7 +9,7 @@ class Room(models.Model):
     plan_half_fee = models.IntegerField()
     plan_no_fee = models.IntegerField()
     max_user_num = models.IntegerField()
-    room_code = models.CharField(max_length=100)
+    room_code = models.CharField(max_length=15)
     plan_period = models.IntegerField()
     leader_id = models.IntegerField()
     negative_percent = models.FloatField()
@@ -17,5 +17,5 @@ class Room(models.Model):
 
 
 class UserRoom(models.Model):
-    user = models.ForeignKey(User, related_name='user_id', on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, related_name='room_id', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
