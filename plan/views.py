@@ -50,7 +50,7 @@ def making_detail_plan(request):
 def all_detail_plan(request):
     user = get_object_or_404(User, user=request.user)
     plan = Plan.objects.get(id=request.data['plan_id'])
-    detail_plan = Detail_Plan.objects.filter(user=user,plan=plan)
+    detail_plan = Detail_Plan.objects.filter(user=user, plan=plan)
     d_plan_list = serializers.serialize('json', detail_plan)
     return HttpResponse(d_plan_list, content_type="text/json-coomment-filtered")
 
