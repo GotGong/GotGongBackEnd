@@ -15,11 +15,15 @@ from .serializers import UserSerializer
 def signin(request):
     # authenticate 사용해서 auth의 User 인증
     user = authenticate(username=request.data['userid'], password=request.data['password'])
-    if user is not None:
-        token = Token.objects.get(user=user)
-        return Response({"Token": token.key})
-    else:
+    if user is None:
         return Response(status=status.HTTP_401_UNAUTHORIZED) # 권한 없음
+    try:
+        # user를 통해 token get
+        token = Token.objects.get(user=user)
+    except:
+        # [FIX]: token이 없는 경우 (token 생성 이후 기간이 지나 token이 만료되어 사라진 경우) token 재생성
+        token = Token.objects.create(user=user)
+    return Response({"Token": token.key})
 
 
 # 사용자 회원가입
@@ -53,6 +57,17 @@ def patch_delete(request):
         user = get_object_or_404(User, id=request.user.id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# 아이디 중복 체크
+@api_view(['POST'])
+def duplicationcheck(request):
+    userid = request.data['userid']
+    try:
+        user = get_object_or_404(User, username=userid)
+    except:
+        return Response(False, status=status.HTTP_200_OK)
+    return Response(True, status=status.HTTP_200_OK)
 
 
 # 테스트용!!!
