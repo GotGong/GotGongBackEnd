@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken', # Token 인증 세팅
     'user',
     'room',
+    'plan',
 ]
 
 # Token 이용해서 User 찾아오기
