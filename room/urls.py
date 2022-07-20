@@ -1,12 +1,12 @@
 from django.urls import path
-from .views import post_patch_delete, enter_bycode, my_room, get_room
-from .views_jjinyeok import leader_change, enter
+from .views import post_patch_delete, enter_by_code, my_room_list, enter
+# from .views import get_room, leader_change
 
 urlpatterns = [
     path('', post_patch_delete),
-    path('rooms/', get_room),
-    path('list/', my_room),
-    path('enterbycode/', enter_bycode),
-    path('leaderchange/', leader_change), 
+    path('myroomlist/', my_room_list),
+    path('enterbycode/', enter_by_code),
     path('enter/', enter)
+    # path('rooms/', get_room),
+    # path('leaderchange/', leader_change), 
 ]
