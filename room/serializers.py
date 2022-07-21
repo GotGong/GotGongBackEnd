@@ -1,15 +1,14 @@
 from rest_framework import serializers
-from .models import Room
-from .models import UserRoom
+from .models import Room, UserRoom
 
 
 class RoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
-        fields = ('title', 'target_date', 'max_user_num', 'rule_num', 'user_num', 'start_date', 'leader_id', 'room_code')
+        fields = '__all__'
 
 
 class UserRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRoom
-        fields = ('user', 'room', 'percent_sum')
+        fields = '__all__'
