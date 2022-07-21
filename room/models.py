@@ -18,3 +18,4 @@ class UserRoom(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) # 사용자 FK
     room = models.ForeignKey(Room, on_delete=models.CASCADE) # 스터디방 FK
     percent_sum = models.FloatField() # 지금까지 한 공부들에 대한 퍼센트 값
+    refund = models.IntegerField() # 환급금
