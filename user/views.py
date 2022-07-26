@@ -23,7 +23,7 @@ def signin(request):
     except:
         # [FIX]: token이 없는 경우 (token 생성 이후 기간이 지나 token이 만료되어 사라진 경우) token 재생성
         token = Token.objects.create(user=user)
-    return Response({"Token": token.key})
+    return Response({"Token": token.key, "user_name": user.username})
 
 
 # 사용자 회원가입
@@ -38,7 +38,7 @@ def signup(request):
     username, email = request.data['username'], request.data['email']
     user = models.User(user=user, username=username, email=email)
     user.save() # Model의 User Entity 저장 (auth의 User와 1대 1 매핑으로 연결되어있음)
-    return Response({"Token": token.key}) # 이 Token 값은 FrontEnd에 저장해두고 인증/인가 시 사용함
+    return Response({"Token": token.key, "user_name": user.username}) # 이 Token 값은 FrontEnd에 저장해두고 인증/인가 시 사용함
 
 
 # 사용자 이름변경 or 사용자 삭제
@@ -68,12 +68,3 @@ def duplicationcheck(request):
     except:
         return Response(False, status=status.HTTP_200_OK)
     return Response(True, status=status.HTTP_200_OK)
-
-
-# 테스트용!!!
-# (HTTP Header에 Authentication에 Token (토큰값)을 넣어 요청을 보내면 user와 token 값을 알 수 있음)
-@api_view(['GET'])
-def check(request):
-    print(request.user)
-    print(request.auth)
-    return Response('hi')
