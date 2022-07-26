@@ -1,35 +1,73 @@
-# from django.shortcuts import get_object_or_404
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from django.shortcuts import render
-# from rest_framework import status
-# from django.utils import timezone
-# import datetime
-# from django.http import HttpResponse
-# from django.core import serializers
+from django.shortcuts import get_object_or_404
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.shortcuts import render
+from rest_framework import status
+from django.utils import timezone
+import datetime
+from django.http import HttpResponse
+from django.core import serializers
 
-# from user.models import User
-# from . import models
-# from room.models import Room, UserRoom
-# from .models import Plan
-# from .models import DetailPlan
+from user.models import User
+from . import models
+from room.models import Room, UserRoom
+from .models import Plan, UserPlan, DetailPlan
 
-# from .serializers import PlanSerializer
-# from .serializers import DetailPlanSerializer
+from .serializers import PlanSerializer
+from .serializers import DetailPlanSerializer
 
-# @api_view(['POST'])
-# def making_plan(request):
-#     room = Room.objects.get(id=request.data['room_id'])
-#     plan = Plan.objects.create(
-#         room=room,
-#         plan_start_time=request.data['plan_start_time'],
-#         week=1,
-#         end_time=datetime.datetime.strptime(request.data['plan_start_time'], "%Y-%m-%d")+datetime.timedelta(days=room.plan_period),
-#         revision_request=0
-#         )
-#     plan.save()
-#     return Response({'plan_id': plan.id})
+@api_view(['POST'])
+def making_plan(request):
+    user = get_object_or_404(User, user=request.user)
+    room = Room.objects.get(id=request.data["room_id"])
 
+    if Plan.objects.filter(room=room).exists():
+        last_plan = Plan.objects.filter(room=room).last()
+        plan = Plan.objects.create(
+            room=room,
+            plan_start_time=last_plan.plan_end_time,
+            plan_end_time=last_plan.plan_end_time+datetime.timedelta(days=7),
+            start_over_time=last_plan.plan_end_time+datetime.timedelta(days=3),
+            week=last_plan.week + 1,
+            content=request.data['content'],
+        )
+        last_plan.plan_status=False
+    else:
+        plan = Plan.objects.create(
+            room=room,
+            plan_start_time=room.start_date,
+            plan_end_time=room.start_date + datetime.timedelta(days=7),
+            start_over_time=room.start_date + +datetime.timedelta(days=3),
+            content = request.data['content']
+        )
+    plan.save()
+    last_plan.save()
+    userplan = models.UserPlan(user = user, plan = plan)
+    userplan.save()
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def myplan_content_endtime(request):
+    user = get_object_or_404(User, user=request.user)
+    room = Room.objects.get(id=request.data["room_id"])
+    plan = Plan.objects.get(room=room, plan_status=True)
+    userplan = UserPlan.objects.get(user=user, plan=plan)
+    plan_dday = plan.plan_end_time-datetime.date.today()
+    study_dday = room.target_date-datetime.date.today()
+    return Response({'content': userplan.plan.content, 'plan_dday': plan_dday.days, 'study_dday': study_dday.days}, status=status.HTTP_200_OK)
+    
+
+@api_view(['GET'])
+def user_plans(request):
+    user = get_object_or_404(User, user=request.user)
+    room = Room.objects.get(id=request.data["room_id"])
+    plans = Plan.objects.filter(room=room)
+    user_plans_list_1 = []
+    for plan in plans:
+        userplan = UserPlan.objects.filter(user=user, plan=plan)
+        plan = Plan.objects.filter(id=userplan.plan.id).values('content','plan_status','week','dislike_check')
+        user_plans_list_1.append(plan)
+    return Response(user_plans_list_1, status=status.HTTP_200_OK)
 
 # @api_view(['POST'])
 # def making_detail_plan(request):
@@ -42,8 +80,7 @@
 #         peer_negative_review=0
 #     )
 #     detail_plan.save()
-    
-#     return Response({"detail_plan_id": detail_plan.id})
+#     return Response(status=status.HTTP_200_OK)
 
 
 # @api_view(['GET'])

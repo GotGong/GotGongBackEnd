@@ -44,7 +44,7 @@ def post_patch_delete(request):
             room_code = room_code
         )
         room.save()
-        userroom = models.UserRoom(user = user, room = room, percent_sum = 0.0)
+        userroom = models.UserRoom(user = user, room = room, percent_sum = 0.0, refund = 0)
         userroom.save()
         return Response({'room_id': room.id, 'room_code': room_code}, status=status.HTTP_200_OK)
 
@@ -82,6 +82,23 @@ def my_room_list(request):
     return Response({'my_room_list': room_list}, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def this_room_users(request):
+    room = get_object_or_404(Room, id=request.data["room_id"])
+    userrooms = UserRoom.objects.filter(room=room)
+    user_list = []
+    for userroom in userrooms:
+        user = userroom.user
+        user_list.append(user)
+    return Response({'room_users_list': user_list}, status=stauts.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def show_code(request):
+    room = get_object_or_404(Room, id=request.data["room_id"])
+    return Response(room.room_code, status=stauts.HTTP_200_OK)
+
+
 # 방 참여하기 - 코드를 통해서
 @api_view(['POST'])
 def enter_by_code (request):
@@ -96,7 +113,7 @@ def enter_by_code (request):
         else:
             room.user_num += 1
             room.save()
-            userroom = models.UserRoom(user=user, room=room, percent_sum=0.0)
+            userroom = models.UserRoom(user=user, room=room, percent_sum=0.0, refund = 0)
             userroom.save()
             return Response({'room_id': room.id}, status=status.HTTP_200_OK)
     else:
