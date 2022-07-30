@@ -8,6 +8,8 @@ from user.models import User
 from . import models
 from .models import Room
 from .models import UserRoom
+from .serializers import RoomSerializer
+from user.serializers import UserSerializer
 
 import uuid
 import base64
@@ -74,29 +76,41 @@ def post_patch_delete(request):
 def my_room_list(request):
     user = get_object_or_404(User, user=request.user)
     userrooms = UserRoom.objects.filter(user=user)
-    room_list = []
+    room_num, response_rooms = 0, []
     for userroom in userrooms:
         room = userroom.room
-        room = Room.objects.filter(id=room.id).values('id', 'title', 'target_date', 'max_user_num', 'rule_num', 'user_num', 'start_date', 'leader_id', 'room_code')
-        room_list.append(room)
-    return Response({'my_room_list': room_list}, status=status.HTTP_200_OK)
+        room = Room.objects.get(id=room.id)
+        room_serializer = RoomSerializer(room)
+        room_serializer_data = room_serializer.data
+        response_rooms.append(room_serializer_data)
+    room_num = len(response_rooms)
+    return Response({'room_count': room_num, 'my_room_list': response_rooms}, status=status.HTTP_200_OK)
 
 
+# 참여한 방에서 참여자 전체 조회
 @api_view(['GET'])
-def this_room_users(request):
-    room = get_object_or_404(Room, id=request.data["room_id"])
+def this_room_users(request, id):
+    room = get_object_or_404(Room, id=id)
     userrooms = UserRoom.objects.filter(room=room)
-    user_list = []
+    user_count, user_list = 0, []
     for userroom in userrooms:
         user = userroom.user
-        user_list.append(user)
-    return Response({'room_users_list': user_list}, status=stauts.HTTP_200_OK)
+        user_serializer = UserSerializer(user)
+        user_serializer_data = user_serializer.data
+        user_list.append(user_serializer_data)
+    user_count = len(user_list)
+    return Response({'room_user_count': user_count, 'room_users_list': user_list}, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
-def show_code(request):
-    room = get_object_or_404(Room, id=request.data["room_id"])
-    return Response(room.room_code, status=stauts.HTTP_200_OK)
+# 참여코드 조회
+@api_view(['GET'])
+def show_code(request, id):
+    user = get_object_or_404(User, user=request.user)
+    room = get_object_or_404(Room, id=id)
+    if UserRoom.objects.filter(user=user, room=room).exists():
+        return Response(room.room_code, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # 방 참여하기 - 코드를 통해서
