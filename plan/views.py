@@ -5,16 +5,11 @@ from django.shortcuts import render
 from rest_framework import status
 from django.utils import timezone
 import datetime
-from django.http import HttpResponse
-from django.core import serializers
 
 from user.models import User
 from . import models
 from room.models import Room, UserRoom
 from .models import Plan, UserPlan, DetailPlan, UserPlanDislike, UserDetailPlanDislike
-
-from .serializers import PlanSerializer
-from .serializers import DetailPlanSerializer
 
 @api_view(['POST'])
 def making_plan(request):
@@ -28,7 +23,7 @@ def making_plan(request):
             userplan_list.append(userplan)
 
     if userplan_list:
-        last_plan = userplan_list[0].plan
+        last_plan = userplan_list[-1].plan
         plan = Plan.objects.create(
             room=room,
             plan_start_time=last_plan.plan_end_time,
@@ -41,10 +36,10 @@ def making_plan(request):
         last_plan.save()
     else:
         plan = Plan.objects.create(
-            room=room,
+            room = room,
             plan_start_time=room.start_date,
             plan_end_time=room.start_date + datetime.timedelta(days=7),
-            start_over_time=room.start_date + +datetime.timedelta(days=3),
+            start_over_time=room.start_date + datetime.timedelta(days=3),
             content = request.data['content']
         )
     plan.save()
@@ -129,7 +124,6 @@ def plan_dislike(request):
         return Response({'error_code': 'USER_ALREADY_PUSH_DISLIKE'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         plan.dislike_check += 1
-        plan.save()
         plan.dislike_percent = plan.dislike_check/plan.room.user_num
         plan.save()
         userplandislike = UserPlanDislike.objects.create(user=user, plan=plan, dislike=True)
@@ -177,11 +171,11 @@ def refund_calculation(request):
     if int(request.data['rule']) == 0:
         for i in range(len(usernames)):
             if i == 0:
-                percent_dic[usernames[0]] = 2*20000
+                percent_dic[usernames[0]] = 2*room.entry_fee
             elif i == (len(usernames) -1):
                 percent_dic[usernames[i]] = 0
             else:
-                percent_dic[usernames[i]] = 20000
+                percent_dic[usernames[i]] = room.entry_fee
     # 2번 룰
     # 3인 기준 / 1등 160%. 2등 80% 3등 60%
     # 4인 기준 / 1등 180%. 2~3등 80%. 4등 60%
@@ -189,28 +183,28 @@ def refund_calculation(request):
     # 6인 기준 / 1등 180%. 2~5등 90%. 6등 60%
     else:
         if room.user_num == 3:
-            percent_dic[usernames[0]] = round(1.6*20000)
-            percent_dic[usernames[1]] = round(0.8*20000)
-            percent_dic[usernames[2]] = round(0.6*20000)
+            percent_dic[usernames[0]] = round(1.6*room.entry_fee)
+            percent_dic[usernames[1]] = round(0.8*room.entry_fee)
+            percent_dic[usernames[2]] = round(0.6*room.entry_fee)
         elif room.user_num == 4 or room.user_num == 5:
             for i in range(len(usernames)):
                 if i == 0:
                     if room.user_num == 4:
-                        percent_dic[usernames[0]] = round(1.8*20000)
+                        percent_dic[usernames[0]] = round(1.8*room.entry_fee)
                     else:
-                        percent_dic[usernames[i]] = 2*20000
+                        percent_dic[usernames[i]] = 2*room.entry_fee
                 elif i == (len(usernames)-1):
-                    percent_dic[usernames[i]] = round(0.6*20000)
+                    percent_dic[usernames[i]] = round(0.6*room.entry_fee)
                 else:
-                    percent_dic[usernames[i]] = round(0.8*20000)
+                    percent_dic[usernames[i]] = round(0.8*room.entry_fee)
         else:
             for i in range(len(usernames)):
                 if i == 0:
-                    percent_dic[usernames[0]] = round(1.8*20000)
+                    percent_dic[usernames[0]] = round(1.8*room.entry_fee)
                 elif i == (len(usernames)-1):
-                    percent_dic[usernames[i]] = round(0.6*20000)
+                    percent_dic[usernames[i]] = round(0.6*room.entry_fee)
                 else:
-                    percent_dic[usernames[i]] = round(0.9*20000)        
+                    percent_dic[usernames[i]] = round(0.9*room.entry_fee)        
     return Response(percent_dic, status=status.HTTP_200_OK)
 
 
@@ -218,17 +212,15 @@ def refund_calculation(request):
 def dplan_dislike_and_check(request):
     user = get_object_or_404(User, user=request.user)
     dplan = DetailPlan.objects.get(id=request.data['detailplan_id'])
-    plan = request.data['plan']
-    if UserDetailPlanDislike.objects.filter(user=user, plan=plan).exists():
+    if UserDetailPlanDislike.objects.filter(user=user, detail_plan=dplan).exists():
         return Response({'error_code': 'USER_ALREADY_PUSH_DISLIKE'}, status=status.HTTP_400_BAD_REQUEST)
     else:
         if request.data['self_check'] == True:
             dplan.self_check = True
         dplan.dislike_check += 1
-        dplan.save()
         dplan.dislike_percent = dplan.dislike_check/dplan.plan.room.user_num
         dplan.save()
-        dplandislike = UserDetailPlanDislike.objects.create(user=user, plan=plan, dislike=True)
+        dplandislike = UserDetailPlanDislike.objects.create(user=user, detail_plan=dplan, dislike=True)
         dplandislike.save()
         return Response({'check_num': dplan.dislike_check, 'dislike_percent': dplan.dislike_percent}, status=status.HTTP_200_OK)
 
