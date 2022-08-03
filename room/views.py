@@ -23,7 +23,6 @@ def generate_random_slug_code(length=15):  # length는 1-32사이에 존재해�
 # 방 만들기, 방 이름 수정하기, 방 마감시 삭제
 @api_view(['POST','PATCH', 'DELETE'])
 def post_patch_delete(request):
-
     # 방 만들기
     if request.method == 'POST':
         user = get_object_or_404(User, user=request.user)
@@ -48,12 +47,13 @@ def post_patch_delete(request):
         userroom.save()
         return Response({'room_id': room.id, 'room_code': room_code}, status=status.HTTP_200_OK)
 
-    # 방 이름 수정하기
+    # 방 이름, 인원 수정하기
     elif request.method == 'PATCH':
-        user, room_id, title_to_change = get_object_or_404(User, user=request.user), request.data['room_id'], request.data['title']
+        user, room_id, title_to_change, num_to_change = get_object_or_404(User, user=request.user), request.data['room_id'], request.data['title'], request.data['user_num']
         room = get_object_or_404(Room, id=room_id)
         if user.id == room.leader_id:
             room.title = title_to_change
+            room.user_num = num_to_change
             room.save()
             return Response({'room_id': room.id}, status=status.HTTP_200_OK)
         else:
