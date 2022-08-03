@@ -11,6 +11,7 @@ class Room(models.Model):
     start_date = models.DateField(auto_now_add=True) # 스터디방 시작 날짜
     leader_id = models.IntegerField() # 방장 ID
     room_code = models.CharField(max_length=15) # 방코드(입장용)
+    entry_fee = models.IntegerField() # 참가비
 
 
 # 사용자 스터디방

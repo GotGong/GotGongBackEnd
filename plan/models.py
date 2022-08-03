@@ -41,5 +41,5 @@ class UserPlanDislike(models.Model):
 # 사용자 세부 수행 싫어요
 class UserDetailPlanDislike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) # 사용자 FK
-    plan = models.ForeignKey(Plan, on_delete=models.CASCADE) # 계획 FK
+    detail_plan = models.ForeignKey(DetailPlan, on_delete=models.CASCADE) # 계획 FK
     dislike = models.BooleanField(default=False) # 싫어요 체크 여부
