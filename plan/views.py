@@ -11,7 +11,7 @@ from django.core import serializers
 from user.models import User
 from . import models
 from room.models import Room, UserRoom
-from .models import Plan, UserPlan, DetailPlan
+from .models import Plan, UserPlan, DetailPlan, UserPlanDislike, UserDetailPlanDislike
 
 from .serializers import PlanSerializer
 from .serializers import DetailPlanSerializer
@@ -76,7 +76,7 @@ def myplan_content_endtime(request):
         study_dday = room.target_date-datetime.date.today()
         return Response({'content': userplan.plan.content, 'plan_dday': plan_dday.days, 'study_dday': study_dday.days}, status=status.HTTP_200_OK)
     else:
-        return Response(status=HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 def show_plans(request):
@@ -218,6 +218,7 @@ def refund_calculation(request):
 def dplan_dislike_and_check(request):
     user = get_object_or_404(User, user=request.user)
     dplan = DetailPlan.objects.get(id=request.data['detailplan_id'])
+    plan = request.data['plan']
     if UserDetailPlanDislike.objects.filter(user=user, plan=plan).exists():
         return Response({'error_code': 'USER_ALREADY_PUSH_DISLIKE'}, status=status.HTTP_400_BAD_REQUEST)
     else:
