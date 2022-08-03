@@ -42,16 +42,20 @@ def signup(request):
 
 
 # 사용자 이름변경 or 사용자 삭제
-@api_view(['PATCH', 'DELETE'])
-def patch_delete(request):
-    if request.method == 'PATCH':
-        user = get_object_or_404(models.User, user=request.user)
-        # partial=True이므로 PATCH method가 가능함
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['GET', 'PATCH', 'DELETE'])
+def get_patch_delete(request):
+    if request.method == 'GET':
+        user = get_object_or_404(User, id=request.user.id)
+        return Response({'email': user.email, 'userid': user.userid, 'password': user.password, 'username': user.username}, status=status.HTTP_200_OK)
+        
+    elif request.method == 'PATCH':
+        user, userid_to_change, password_to_change, username_to_change = get_object_or_404(models.User, user=request.user), request.data['userid'], request.data['password'], request.data['username']
+        user.userid = userid_to_change
+        user.password = password_to_change
+        user.username = username_to_change
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+    
     elif request.method == 'DELETE':
         # auth의 User가 삭제되면 Model의 User 또한 삭제됨 (CASCADE)
         user = get_object_or_404(User, id=request.user.id)
