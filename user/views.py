@@ -8,7 +8,6 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 from . import models
-from .serializers import UserSerializer
 
 # 사용자 로그인
 @api_view(['POST'])
