@@ -1,14 +1,12 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.shortcuts import render
 from rest_framework import status
-from django.utils import timezone
 import datetime
 
 from user.models import User
-from . import models
 from room.models import Room, UserRoom
+from .serializers import PlanSerializer, DetailPlanSerializer
 from .models import Plan, UserPlan, DetailPlan, UserPlanDislike, UserDetailPlanDislike
 
 @api_view(['POST'])
@@ -161,7 +159,6 @@ def refund_calculation(request):
     room = Room.objects.get(id=request.data['room_id'])
     userrooms = UserRoom.objects.filter(room=room)
     percent_dic = {}
-    refund_list=[]
     for userroom in userrooms:
         percent_dic[userroom.user.username] = userroom.percent_sum
     percent_dic = dict(sorted(percent_dic.items(), key=lambda item: item[1], reverse=True))
@@ -233,11 +230,12 @@ def plan_patch_delete(request):
     plan = Plan.objects.get(id=request.data['plan_id'])
     if d_plan.exists() and plan.exists():
         pass
+    elif UserPlan.objects.get(plan=plan,user=user).exists():
+        pass
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'PATCH':
-        plan_tochange = request.data['plan_tochange']
         serializer = PlanSerializer(plan.first(), data=request.data['plan_tochange'], partial=True)
         serializer_1 = DetailPlanSerializer(d_plan.first(), data=request.data['dplan_tochange'], partial=True)
         if serializer.is_valid():
