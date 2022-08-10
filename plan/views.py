@@ -181,14 +181,14 @@ def plan_dislike(request):
 
 
 @api_view(['GET'])
-def ranking(room_id):
+def ranking(request, id):
     """방 id를 입력받아 사용자들의 percent_sum을 계산하고 높은 순서대로 정렬하여 딕셔녀리 형태로 내보내는 함수
     
     :params int room: room_id
     
     :returns json percent sum: {username: percent_sum}
     """
-    room = get_object_or_404(Room, id=room_id)
+    room = get_object_or_404(Room, id=id)
     userrooms = UserRoom.objects.filter(room=room)
     percent_sum = {}
     for userroom in userrooms:
@@ -196,7 +196,7 @@ def ranking(room_id):
         plan_num = 0
         userplans = UserPlan.objects.filter(user=userroom.user)
         for userplan in userplans:
-            if (userplan.plan.room.id == int(room_id)):
+            if userplan.plan.room.id == id:
                 done_plan_num = 0
                 detail_plans = DetailPlan.objects.filter(plan=userplan.plan)
                 plan_num += 1
@@ -212,7 +212,7 @@ def ranking(room_id):
 
 
 @api_view(['GET'])
-def refund_calculation(id):
+def refund_calculation(request, id):
     """방 id를 입력받아 rule_num의 규칙에 따라서 환급금을 계산하고 높은 순서대로 정렬하여 딕셔녀리 형태로 내보내는 함수
     
     :params int room: room_id
