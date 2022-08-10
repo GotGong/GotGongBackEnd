@@ -5,7 +5,6 @@ from rest_framework import status
 import datetime
 
 from user.models import User
-from . import models
 from room.models import Room, UserRoom
 from .serializers import PlanSerializer, DetailPlanSerializer
 from .models import Plan, UserPlan, DetailPlan, UserPlanDislike, UserDetailPlanDislike
@@ -88,14 +87,14 @@ def myplan_content_endtime(request, id):
     if userplan_list:
         plan_dday = userplan.plan.plan_end_time-datetime.date.today()
         study_days = datetime.date.today()-room.start_date
-        return Response({'content': userplan.plan.content, 'plan_dday': plan_dday.days, 'study_dday': study_days.days}, status=status.HTTP_200_OK)
+        return Response({'content': userplan.plan.content, 'plan_dday': plan_dday.days, 'study_days': study_days.days}, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 def show_plans(request,id):
     user = get_object_or_404(User, user=request.user)
-    room = Room.objects.get(id=id)
+    room = get_object_or_404(Room, id=id)
     plans = Plan.objects.filter(room=room)
     plan_list = []
     for plan in plans:
@@ -141,9 +140,9 @@ def my_detail_plans(request,id):
     :returns int week: plan_week
     :returns list detail_plan: detail_plan_id, detail_plan_dislike_check, detail_plan_content
     """
-    plan_info = show_plans(request)
+    plan_info = show_plans(request, id)
     user = get_object_or_404(User, user=request.user)
-    room = Room.objects.get(id=id)
+    room = get_object_or_404(Room, id=id)
     plans = Plan.objects.filter(room=room)
     plan_list = []
     for plan in plans:
@@ -182,14 +181,14 @@ def plan_dislike(request):
 
 
 @api_view(['GET'])
-def ranking(id):
+def ranking(room_id):
     """방 id를 입력받아 사용자들의 percent_sum을 계산하고 높은 순서대로 정렬하여 딕셔녀리 형태로 내보내는 함수
     
     :params int room: room_id
     
     :returns json percent sum: {username: percent_sum}
     """
-    room = Room.objects.get(id=id)
+    room = get_object_or_404(Room, id=room_id)
     userrooms = UserRoom.objects.filter(room=room)
     percent_sum = {}
     for userroom in userrooms:
@@ -197,7 +196,7 @@ def ranking(id):
         plan_num = 0
         userplans = UserPlan.objects.filter(user=userroom.user)
         for userplan in userplans:
-            if (userplan.plan.room.id == int(id)):
+            if (userplan.plan.room.id == int(room_id)):
                 done_plan_num = 0
                 detail_plans = DetailPlan.objects.filter(plan=userplan.plan)
                 plan_num += 1
