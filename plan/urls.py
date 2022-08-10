@@ -8,7 +8,7 @@ urlpatterns = [
     path('dplan_dislike/', dplan_dislike_and_check),
     path('content/<int:id>/', myplan_content_endtime),
     path('refund/<int:id>/', refund_calculation),
-    path('rank/<int:id>/', ranking),
+    path('rank/<int:room_id>/', ranking),
     path('details/<int:id>/', my_detail_plans),
-    path('user_plans/<int:id>/', user_plans),
+    path('user_plans/<int:id>/', user_plans)
 ]
