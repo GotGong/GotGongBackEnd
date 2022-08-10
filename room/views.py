@@ -90,7 +90,7 @@ def my_room_list(request):
 
 # 참여한 방에서 참여자 전체 조회
 @api_view(['GET'])
-def this_room_users(id):
+def this_room_users(request, id):
     room = get_object_or_404(Room, id=id)
     userrooms = UserRoom.objects.filter(room=room)
     user_count, user_list = 0, []
