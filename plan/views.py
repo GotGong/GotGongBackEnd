@@ -86,8 +86,8 @@ def myplan_content_endtime(request, id):
             userplan_list.append(userplan)
     if userplan_list:
         plan_dday = userplan.plan.plan_end_time-datetime.date.today()
-        study_days = datetime.date.today()-room.start_date
-        return Response({'content': userplan.plan.content, 'plan_dday': plan_dday.days, 'study_days': study_days.days}, status=status.HTTP_200_OK)
+        study_dday = userplan.plan.room.target_date-datetime.date.today()
+        return Response({'content': userplan.plan.content, 'plan_dday': plan_dday.days, 'study_dday': study_dday.days}, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -124,7 +124,9 @@ def user_plans(request,id):
     :returns list detail_plans: detail_plan_contents
     """
     plan_info = show_plans(request,id)
-    return Response(plan_info, status=status.HTTP_200_OK)
+    room = get_object_or_404(Room, id=id)
+    entire_week = room.target_date - room.start_date
+    return Response({"plan_info":plan_info, "entire_week": entire_week.days}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -154,7 +156,8 @@ def my_detail_plans(request,id):
         plan_info[i]['detail_plan'] = detail_dic
         del plan_info[i]['dislike_check']
 
-    return Response(plan_info, status=status.HTTP_200_OK)
+    entire_week = room.target_date-room.start_date
+    return Response({"plan_info":plan_info, "entire_week": entire_week.days}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
