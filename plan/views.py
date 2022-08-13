@@ -110,6 +110,25 @@ def show_plans(request,id):
 
 
 @api_view(['GET'])
+def other_user_plans(request):
+    user = get_object_or_404(User, id=request.data['user_id'])
+    room = get_object_or_404(Room, id=request.data['room_id'])
+    plans = Plan.objects.filter(room=room)
+    plan_list = []    
+    for plan in plans:
+        if UserPlan.objects.filter(user=user, plan=plan).exists() == False:
+            plans = plans.exclude(id=plan.id)
+        else:
+            plan_list.append(plan)
+    plan_info = plans.values('id','content','plan_status','week','dislike_check')
+    for i in range(len(plan_info)):
+        detail_list = DetailPlan.objects.filter(plan=plan_list[i]).values_list('content', flat=True)
+        plan_info[i]['detail_plans'] = detail_list
+    entire_week = room.target_date - room.start_date
+    return Response({"plan_info":plan_info, "entire_week": entire_week.days}, status=status.HTTP_200_OK)
+    
+    
+@api_view(['GET'])
 def user_plans(request,id):
     """사용자가 현재 들어와 있는 방의 id를 입력받아 현재 방에서 사용자의 모든 계획의 정보를 불러오는 함수
     
