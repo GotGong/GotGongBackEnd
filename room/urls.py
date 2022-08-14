@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import post_patch_delete, enter_by_code, my_room_list, enter, this_room_users, show_code
+from .views import post_patch_delete, enter_by_code, my_room_list, enter, this_room_users, show_code, change_target_date
 # from .views import get_room, leader_change 추후 추가 예정
 
 urlpatterns = [
@@ -9,6 +9,7 @@ urlpatterns = [
     path('enter/', enter), # 방 참여하기 - 이미 참여한 방으로 접속
     path('users/<int:id>/', this_room_users), # 참여한 방에서 참여자 전체 조회
     path('code/<int:id>/', show_code), # 참여코드 조회
+    path('targetdate/', change_target_date)
 
     # path('rooms/', get_room),
     # path('leaderchange/', leader_change), 

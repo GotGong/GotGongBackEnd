@@ -11,6 +11,8 @@ from .models import UserRoom
 from .serializers import RoomSerializer
 from user.serializers import UserSerializer
 
+import datetime
+
 import uuid
 import base64
 import codecs
@@ -144,6 +146,68 @@ def enter(request):
         return Response({'room_id': room_id} ,status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# 룰 변경하기
+@api_view(['PATCH'])
+def change_rule(request):
+    """This function is changing rule in the room.
+    
+    Params
+    ------
+    user : by token
+    room_id : the room id
+    rule_num : rule number to change
+
+    Return
+    ------
+    SUCCESS -> HTTP_200_OK : room_id : the room id
+    FAIL -> HTTP_400_BAD_REQUEST
+    """
+
+    # user, room_id, rule_num_to_chage : request parmas
+    user, room_id, rule_num_to_change = get_object_or_404(User, user=request.user), request.data['room_id'], request.data['rule_num']
+    room = get_object_or_404(Room, id=room_id)
+    # only leader can change the rule
+    if user.id == room.leader_id:
+        # the room's rule changed
+        room.rule_num = rule_num_to_change
+        room.save()
+        return Response({'room_id': room.id}, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+# 일정 변경하기 (주차 변경하기)
+@api_view(['PATCH'])
+def change_target_date(request):
+    """This function is changing schedule by week in the room
+
+    Params
+    ------
+    user : by token
+    room_id : the room id
+    target_date_week : week to changing the target date
+
+    Return
+    ------
+    SUCCESS -> HTTP_200_OK : room_id : the room id
+    FAIL -> HTTP_400_BAD_REQUEST
+    """
+
+    # user, room_id, target_date_week_to_chage : request parmas
+    user, room_id, target_date_week_to_chage = get_object_or_404(User, user=request.user), request.data['room_id'], request.data['target_date_week']
+    room = get_object_or_404(Room, id=room_id)
+    # only leader can change the rule
+    if user.id == room.leader_id:
+        # target date want to change
+        seven_days = datetime.timedelta(days=7)
+        if datetime.datetime.now().date() >= room.start_date + seven_days * target_date_week_to_chage:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            room.target_date = room.start_date + seven_days * target_date_week_to_chage
+            room.save()
+            return Response({'room_id': room.id}, status=status.HTTP_200_OK)
 
 
 # # 방 조회하기 (추후 추가)
