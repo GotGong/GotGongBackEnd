@@ -22,7 +22,7 @@ def signin(request):
     except:
         # [FIX]: token이 없는 경우 (token 생성 이후 기간이 지나 token이 만료되어 사라진 경우) token 재생성
         token = Token.objects.create(user=user)
-    return Response({"Token": token.key, "user_name": user.username})
+    return Response({"Token": token.key, "username": user.user.username})
 
 
 # 사용자 회원가입
