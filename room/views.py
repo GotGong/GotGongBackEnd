@@ -42,6 +42,7 @@ def post_patch_delete(request):
             target_date = request.data['target_date'], 
             max_user_num = request.data['max_user_num'], 
             rule_num = request.data['rule_num'], 
+            entry_fee = request.data['entry_fee'],
             user_num = 1, 
             leader_id = user.id,
             room_code = room_code
