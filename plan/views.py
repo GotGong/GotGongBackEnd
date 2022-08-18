@@ -104,15 +104,15 @@ def show_plans(request,id):
             plan_list.append(plan)
     plan_info = plans.values('id','content','plan_status','week','dislike_check')
     for i in range(len(plan_info)):
-        detail_list = DetailPlan.objects.filter(plan=plan_list[i]).values_list('content', flat=True)
-        plan_info[i]['detail_plans'] = detail_list
+        detail_dic = DetailPlan.objects.filter(plan=plan_list[i]).values('content', 'self_check')
+        plan_info[i]['detail_plans'] = detail_dic
     return plan_info
 
 
 @api_view(['GET'])
-def other_user_plans(request):
-    user = get_object_or_404(User, id=request.data['user_id'])
-    room = get_object_or_404(Room, id=request.data['room_id'])
+def other_user_plans(request, user_id, room_id):
+    user = get_object_or_404(User, id=user_id)
+    room = get_object_or_404(Room, id=room_id)
     plans = Plan.objects.filter(room=room)
     plan_list = []    
     for plan in plans:
@@ -122,8 +122,8 @@ def other_user_plans(request):
             plan_list.append(plan)
     plan_info = plans.values('id','content','plan_status','week','dislike_check')
     for i in range(len(plan_info)):
-        detail_list = DetailPlan.objects.filter(plan=plan_list[i]).values_list('content', flat=True)
-        plan_info[i]['detail_plans'] = detail_list
+        detail_dic = DetailPlan.objects.filter(plan=plan_list[i]).values('content', 'self_check')
+        plan_info[i]['detail_plans'] = detail_dic
     entire_week = room.target_date - room.start_date
     return Response({"plan_info":plan_info, "entire_week": entire_week.days}, status=status.HTTP_200_OK)
     
@@ -171,7 +171,7 @@ def my_detail_plans(request,id):
             plan_list.append(plan)
     for i in range(len(plan_info)):
         del plan_info[i]['detail_plans']
-        detail_dic = DetailPlan.objects.filter(plan=plan_list[i]).values('id', 'dislike_check', 'content')
+        detail_dic = DetailPlan.objects.filter(plan=plan_list[i]).values('id', 'dislike_check', 'content', 'self_check')
         plan_info[i]['detail_plan'] = detail_dic
         del plan_info[i]['dislike_check']
 

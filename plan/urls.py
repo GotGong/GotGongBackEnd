@@ -11,5 +11,5 @@ urlpatterns = [
     path('rank/<int:id>/', ranking),
     path('details/<int:id>/', my_detail_plans),
     path('user_plans/<int:id>/', user_plans),
-    path('other_user_plans/', other_user_plans)
+    path('other_user_plans/<int:user_id>/<int:room_id>/', other_user_plans)
 ]
