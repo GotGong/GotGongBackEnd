@@ -1,3 +1,3 @@
-pip install django // Django 설치
-pip install djangorestframework // DRF 설치 
-pip install django-cors-headers // CORS 방지
+pip3 install django // Django 설치
+pip3 install djangorestframework // DRF 설치 
+pip3 install django-cors-headers // CORS 방지
