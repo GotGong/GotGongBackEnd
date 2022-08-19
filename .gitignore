@@ -1,4 +1,4 @@
-# /GotGong/secret.py
+/GotGong/secret.py
 ### Django ###
 *.log
 *.pot
