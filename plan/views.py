@@ -125,7 +125,8 @@ def other_user_plans(request, user_id, room_id):
         detail_dic = DetailPlan.objects.filter(plan=plan_list[i]).values('content', 'self_check')
         plan_info[i]['detail_plans'] = detail_dic
     entire_week = room.target_date - room.start_date
-    return Response({"plan_info":plan_info, "entire_week": entire_week.days}, status=status.HTTP_200_OK)
+    username = user.username
+    return Response({"plan_info":plan_info, "entire_week": entire_week.days, "username": username}, status=status.HTTP_200_OK)
     
     
 @api_view(['GET'])
