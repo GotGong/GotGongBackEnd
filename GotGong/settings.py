@@ -25,9 +25,9 @@ from .secret import MY_SECRET_KEY
 SECRET_KEY = MY_SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost'] # 접속을 허용하는 주소
 
 
 # Application definition
@@ -75,7 +75,7 @@ ROOT_URLCONF = 'GotGong.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
