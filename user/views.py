@@ -41,19 +41,11 @@ def signup(request):
 
 
 # 사용자 이름변경 or 사용자 삭제
-@api_view(['GET', 'PATCH', 'DELETE'])
-def get_patch_delete(request):
+@api_view(['GET','DELETE'])
+def get_delete(request):
     if request.method == 'GET':
         user = get_object_or_404(User, id=request.user.id)
         return Response({'email': user.email, 'userid': user.userid, 'password': user.password, 'username': user.username}, status=status.HTTP_200_OK)
-        
-    elif request.method == 'PATCH':
-        user, userid_to_change, password_to_change, username_to_change = get_object_or_404(models.User, user=request.user), request.data['userid'], request.data['password'], request.data['username']
-        user.userid = userid_to_change
-        user.password = password_to_change
-        user.username = username_to_change
-        user.save()
-        return Response(status=status.HTTP_200_OK)
     
     elif request.method == 'DELETE':
         # auth의 User가 삭제되면 Model의 User 또한 삭제됨 (CASCADE)
@@ -62,6 +54,30 @@ def get_patch_delete(request):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['PATCH'])
+def patch_id(request):
+    user, userid_to_change = get_object_or_404(models.User, user=request.user), request.data['userid']
+    user.userid = userid_to_change
+    user.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+def patch_password(request):
+    user, password_to_change = get_object_or_404(models.User, user=request.user), request.data['password']
+    user.password = password_to_change
+    user.save()
+    return Response(status=status.HTTP_200_OK)
+    
+    
+@api_view(['PATCH'])
+def patch_username(request):
+    user, username_to_change = get_object_or_404(models.User, user=request.user), request.data['username']
+    user.username = username_to_change
+    user.save()
+    return Response(status=status.HTTP_200_OK)
+    
+    
 # 아이디 중복 체크
 @api_view(['POST'])
 def duplicationcheck(request):
