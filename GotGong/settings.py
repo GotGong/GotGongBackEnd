@@ -16,7 +16,6 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -28,7 +27,6 @@ SECRET_KEY = MY_SECRET_KEY
 DEBUG = False
 
 ALLOWED_HOSTS = ['localhost'] # 접속을 허용하는 주소
-
 
 # Application definition
 
